@@ -1,9 +1,12 @@
+import { CalendarIcon } from "@sanity/icons";
+import { subtle } from "crypto";
 import { defineField, defineType } from "sanity";
 
 export const eventType = defineType({
     name: "event",
     title: "Event",
     type: "document",
+    icon: CalendarIcon,
     groups: [
         {name: "details", title: "Details"},
         {name: "editorial", title: "Editorial"},
@@ -81,4 +84,31 @@ export const eventType = defineType({
             group: "editorial",
         }),
     ],
+    preview: {
+        select: {
+          name: 'name',
+          venue: 'venue.name',
+          artist: 'headline.name',
+          date: 'date',
+          image: 'image',
+        },
+        prepare({name, venue, artist, date, image}) {
+          const nameFormatted = name || 'Untitled event'
+          const dateFormatted = date
+            ? new Date(date).toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+              })
+            : ''
+      
+          return {
+            title: artist ? `${nameFormatted} (${artist})` : nameFormatted,
+            subtitle: venue ? `${dateFormatted} @ ${venue}` : dateFormatted,
+            media: image || CalendarIcon,
+          }
+        },
+    },
 })
