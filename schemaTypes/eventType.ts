@@ -1,6 +1,7 @@
 import { CalendarIcon } from "@sanity/icons";
 import { subtle } from "crypto";
 import { defineField, defineType } from "sanity";
+import { DoorsOpenInput } from "./components/DoorsOpenInput";
 
 export const eventType = defineType({
     name: "event",
@@ -18,15 +19,22 @@ export const eventType = defineType({
             group: "details",
         }),
         defineField({
-            name: "slug",
-            type: "slug",
-            group: "details",
-            options: {
-                source: "name"
-            },
-            validation: (rule) => rule.required().error("Required to generate a page on the website."),
+            name: 'slug',
+            type: 'slug',
+            group: 'details',
+            options: {source: 'name'},
+            validation: (rule) => rule.required().error(`Required to generate a page on the website`),
             hidden: ({document}) => !document?.name,
-        }),
+            readOnly: ({value, currentUser}) => {
+              if (!value) {
+                return false
+              }
+          
+              const isAdmin = currentUser?.roles.some((role) => role.name === 'administrator')
+          
+              return !isAdmin
+            },
+          }),
         defineField({
             name: "eventType",
             type: "string",
@@ -47,6 +55,9 @@ export const eventType = defineType({
             type: "number",
             group: "details",
             initialValue: 60,
+            components: {
+                input: DoorsOpenInput
+            }
         }),
         defineField({
             name: "venue",
